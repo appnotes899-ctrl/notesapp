@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Notes App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-[#111418] dark:text-white overflow-x-hidden">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root max-w-[480px] mx-auto bg-white dark:bg-[#101922] shadow-sm">
+        <!-- Header Section -->
+        <div class="flex flex-col gap-2 p-4 pb-2 bg-white dark:bg-[#101922] sticky top-0 z-10 fade-in">
+            <div class="flex items-center h-12 justify-end">
+                <button id="settings-btn" class="flex w-12 items-center justify-end text-[#111418] dark:text-white cursor-pointer rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-[24px]">settings</span>
+                </button>
+            </div>
+            <h1 class="text-[#111418] dark:text-white tracking-tight text-[32px] font-extrabold leading-tight">Notes</h1>
+        </div>
+        <!-- Search Bar -->
+        <div class="px-4 py-3 fade-in" style="animation-delay: 0.1s;">
+            <label class="flex flex-col min-w-40 h-12 w-full">
+                <div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm bg-[#f0f2f4] dark:bg-[#1e2933]">
+                    <div class="text-[#617589] dark:text-[#9ca3af] flex border-none items-center justify-center pl-4 rounded-l-xl border-r-0">
+                        <span class="material-symbols-outlined text-[24px]">search</span>
+                    </div>
+                    <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111418] dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent focus:border-none h-full placeholder:text-[#617589] dark:placeholder:text-[#6b7280] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search your notes..." value=""/>
+                </div>
+            </label>
+        </div>
+        <!-- Scrollable List Area -->
+        <div class="flex-1 overflow-y-auto pb-24">
+            <!-- Pinned Section -->
+            <% if (pinnedNotes.length > 0) { %>
+            <div class="flex flex-col fade-in" style="animation-delay: 0.2s;">
+                <h3 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Pinned</h3>
+                <div class="px-4 flex flex-col gap-3" id="pinned-notes">
+                    <% pinnedNotes.forEach(note => { %>
+                    <div class="note-card group flex items-center gap-4 bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] hover:border-primary/50 dark:hover:border-primary/50 transition-colors shadow-sm slide-in" data-id="<%= note.id %>">
+                        <input type="checkbox" class="select-note ml-0 mr-2" data-id="<%= note.id %>" />
+                        <div class="flex flex-1 flex-col justify-center gap-1 cursor-pointer">
+                            <p class="text-[#111418] dark:text-white text-base font-bold leading-normal"><%= note.title %></p>
+                            <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-normal leading-normal line-clamp-1"><%= note.content.substring(0, 100) %></p>
+                            <p class="text-[#9ca3af] dark:text-[#6b7280] text-xs font-medium leading-normal mt-1"><%= formatDate(note.updatedAt) %></p>
+                        </div>
+                        <div class="shrink-0 flex flex-col items-end justify-start">
+                            <button class="delete-single text-red-500 hover:text-red-700 mb-2" data-id="<%= note.id %>" title="Delete">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                            <% if (note.pinned) { %>
+                            <span class="material-symbols-outlined text-primary text-[20px] fill-1">push_pin</span>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <% } %>
+            <!-- Recent Section -->
+            <% if (recentNotes.length > 0) { %>
+            <div class="flex flex-col mt-4 fade-in" style="animation-delay: 0.3s;">
+                <h3 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Recent</h3>
+                <div class="px-4 flex flex-col gap-3" id="recent-notes">
+                    <% recentNotes.forEach(note => { %>
+                    <div class="note-card group flex items-center gap-4 bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] hover:border-primary/50 dark:hover:border-primary/50 transition-colors shadow-sm slide-in" data-id="<%= note.id %>">
+                        <input type="checkbox" class="select-note ml-0 mr-2" data-id="<%= note.id %>" />
+                        <div class="flex flex-1 flex-col justify-center gap-1 cursor-pointer">
+                            <p class="text-[#111418] dark:text-white text-base font-bold leading-normal"><%= note.title %></p>
+                            <p class="text-[#617589] dark:text-[#9ca3af] text-sm font-normal leading-normal line-clamp-1"><%= note.content.substring(0, 100) %></p>
+                            <p class="text-[#9ca3af] dark:text-[#6b7280] text-xs font-medium leading-normal mt-1"><%= formatDate(note.updatedAt) %></p>
+                        </div>
+                        <div class="shrink-0">
+                            <button class="delete-single text-red-500 hover:text-red-700" data-id="<%= note.id %>" title="Delete">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <% } %>
+        </div>
+        <!-- Bulk actions bar -->
+        <div id="bulk-actions" class="fixed bottom-20 right-6 z-50 hidden">
+            <div class="flex gap-2">
+                <button id="delete-selected" class="bg-red-600 text-white px-3 py-2 rounded">Delete Selected</button>
+                <button id="delete-all" class="bg-red-400 text-white px-3 py-2 rounded">Delete All</button>
+            </div>
+        </div>
+
+        <!-- Floating Action Button (FAB) -->
+        <div class="fixed bottom-6 right-6 z-50 fade-in" style="animation-delay: 0.4s;">
+            <button id="add-note-btn" class="flex items-center justify-center w-14 h-14 bg-primary rounded-full shadow-lg hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <span class="material-symbols-outlined text-white text-[32px]">add</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Helper function for date formatting
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - new Date(date);
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+
+            if (hours < 1) return 'Just now';
+            if (hours < 24) return `Edited ${hours}h ago`;
+            if (days === 1) return 'Edited yesterday';
+            if (days < 7) return `Edited ${days} days ago`;
+            return new Date(date).toLocaleDateString();
+        }
+
+        // Event listeners
+        document.getElementById('add-note-btn').addEventListener('click', () => {
+            window.location.href = '/new';
+        });
+
+        // Click to open note (ignore clicks on delete/checkbox)
+        document.querySelectorAll('.note-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-single') || e.target.closest('.select-note')) return;
+                const id = card.dataset.id;
+                window.location.href = `/note/${id}`;
+            });
+        });
+
+        // Single delete handler
+        document.querySelectorAll('.delete-single').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                if (!confirm('Delete this note?')) return;
+                const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    btn.closest('.note-card').remove();
+                } else {
+                    alert('Failed to delete note');
+                }
+            });
+        });
+
+        // Selection and bulk actions
+        const bulkActions = document.getElementById('bulk-actions');
+        function updateBulkUI() {
+            const selected = document.querySelectorAll('.select-note:checked');
+            bulkActions.classList.toggle('hidden', selected.length === 0);
+        }
+        document.querySelectorAll('.select-note').forEach(cb => cb.addEventListener('change', updateBulkUI));
+        document.getElementById('delete-selected').addEventListener('click', async () => {
+            const selected = Array.from(document.querySelectorAll('.select-note:checked')).map(i => i.dataset.id);
+            if (!selected.length) return;
+            if (!confirm(`Delete ${selected.length} notes?`)) return;
+            const res = await fetch('/api/notes', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: selected }) });
+            if (res.ok) {
+                selected.forEach(id => {
+                    const node = document.querySelector(`.note-card[data-id="${id}"]`);
+                    if (node) node.remove();
+                });
+                updateBulkUI();
+            } else {
+                alert('Failed to delete selected');
+            }
+        });
+        document.getElementById('delete-all').addEventListener('click', async () => {
+            if (!confirm('Delete ALL notes?')) return;
+            const res = await fetch('/api/notes', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) });
+            if (res.ok) {
+                document.querySelectorAll('.note-card').forEach(n => n.remove());
+                updateBulkUI();
+            } else {
+                alert('Failed to delete all');
+            }
+        });
+
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.note-card');
+            cards.forEach(card => {
+                const title = card.querySelector('p:first-child').textContent.toLowerCase();
+                const content = card.querySelector('p:nth-child(2)').textContent.toLowerCase();
+                if (title.includes(query) || content.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Listen for storage event to refresh list after edits/creates in editor
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'notes-updated') {
+                console.log('notes-updated detected, reloading list');
+                // For simplicity, reload the page so pinned/recent sections re-render
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>

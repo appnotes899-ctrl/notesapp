@@ -1,0 +1,31 @@
+Server running on port 3000
+Created note: {
+  id: '028ca112-ad81-45ed-bbf8-f3515a0989c0',
+  title: 'Test Note',
+  pinned: false
+}
+Total notes: 7
+Updated note: {
+  id: '028ca112-ad81-45ed-bbf8-f3515a0989c0',
+  title: 'Updated Test Note',
+  pinned: false
+}
+Deleted note: 028ca112-ad81-45ed-bbf8-f3515a0989c0
+Created note: {
+  id: '9758aeb6-1764-4fb6-b3e2-c580d596093b',
+  title: 'Test Note',
+  pinned: false
+}
+Total notes: 7
+Updated note: {
+  id: 'ae9c0902-ce84-4a5b-a5ff-a0059a8f2eb1',
+  title: 'Updated Note',
+  pinned: true
+}
+Deleted note: 7b73144f-c8f3-4139-a1fc-915809d31104
+Deleted note: ae9c0902-ce84-4a5b-a5ff-a0059a8f2eb1
+Updated note: {
+  id: 'dab2d524-30f5-447e-8244-3429201f0a4d',
+  title: 'Meeting Notes: Q3 Roadmap',
+  pinned: true
+}
